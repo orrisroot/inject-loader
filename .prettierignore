@@ -3,4 +3,5 @@ dist/*
 tmp/*
 *.md
 *.lock
+.gitignore
 .prettierignore
