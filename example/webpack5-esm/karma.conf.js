@@ -1,9 +1,11 @@
 const webpackConfig = require('./webpack.conf.js');
 
+webpackConfig.entry = undefined;
+
 module.exports = function karmaConfig(config) {
   config.set({
     basePath: '',
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
 
     files: [{pattern: 'test/*_test.js', watched: false}],
 
@@ -22,5 +24,7 @@ module.exports = function karmaConfig(config) {
     singleRun: true,
     concurrency: Infinity,
     webpack: webpackConfig,
+    hostname: 'localhost',
+    listenAddress: 'localhost',
   });
 };

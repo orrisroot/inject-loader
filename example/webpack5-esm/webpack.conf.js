@@ -2,17 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /(\/node_modules$)/,
-      },
-    ],
-  },
-
-  target: 'node',
+  mode: 'production',
 
   entry: {
     main: './test/main_test',
@@ -26,7 +16,6 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, './dest'),
-    filename: '[name].js',
   },
 
   resolve: {

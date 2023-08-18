@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
+  mode: 'production',
+
   module: {
     rules: [
       {
@@ -11,8 +13,6 @@ module.exports = {
       },
     ],
   },
-
-  target: 'node',
 
   entry: {
     main: './test/main_test',
@@ -26,7 +26,6 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, './dest'),
-    filename: '[name].js',
   },
 
   resolve: {
