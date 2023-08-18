@@ -7,7 +7,7 @@ module.exports = function karmaConfig(config) {
     basePath: '',
     frameworks: ['jasmine', 'webpack'],
 
-    files: [{pattern: 'test/*_test.js', watched: false}],
+    files: [{ pattern: 'test/*_test.js', watched: false }],
 
     preprocessors: {
       'test/*_test.js': ['webpack'],

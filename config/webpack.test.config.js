@@ -1,4 +1,5 @@
 const path = require('path');
+
 const constants = require('./shared');
 
 module.exports = {
@@ -11,7 +12,7 @@ module.exports = {
   },
   resolveLoader: {
     alias: {
-      self: constants.DIST_PATH,
+      'inject-loader': constants.DIST_PATH,
     },
   },
   module: {

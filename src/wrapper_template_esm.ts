@@ -42,5 +42,5 @@ export default template(
     return module.exports;
 }
 `,
-  { sourceType: 'module' },
+  { sourceType: 'module' }
 );

@@ -6,3 +6,5 @@ tmp/*
 *.lock
 .gitignore
 .prettierignore
+example/*/dest
+example/*/tmp

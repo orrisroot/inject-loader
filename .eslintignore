@@ -1,0 +1,7 @@
+/coverage
+/lib
+/types
+/node_modules
+/example/**/dest
+/example/**/tmp
+/example/**/node_modules

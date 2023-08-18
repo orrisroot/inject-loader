@@ -1,5 +1,7 @@
+/* eslint-disable node/no-missing-import, import/no-unresolved */
 import assert from 'assert';
-import moduleInjector from 'self!./modules/es6.js';
+
+import moduleInjector from 'inject-loader!./modules/es6.js';
 
 const MODULE_A_STUB = {
   a() {

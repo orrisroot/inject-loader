@@ -14,12 +14,12 @@ const processRequireCall = (path: NodePath<t.CallExpression>) => {
       t.conditionalExpression(
         t.callExpression(
           t.memberExpression(t.identifier('__injections'), t.identifier('hasOwnProperty'), false),
-          [t.stringLiteral(dependencyString)],
+          [t.stringLiteral(dependencyString)]
         ),
         t.memberExpression(t.identifier('__injections'), t.stringLiteral(dependencyString), true),
-        path.node,
-      ),
-    ),
+        path.node
+      )
+    )
   );
 
   return dependencyString;
@@ -34,12 +34,11 @@ const processImport = (path: NodePath<t.ImportDeclaration>) => {
     const localIdentifier = specifier.local;
     // ex: __React
     const aliasIdentifier = t.identifier(`__${localIdentifier.name}`);
-
     // __injections['react']
     let injectionExpression = t.memberExpression(
       t.identifier('__injections'),
       t.stringLiteral(dependencyString),
-      true,
+      true
     );
     if (t.isImportSpecifier(specifier)) {
       // __injections['react'].Component
@@ -55,18 +54,17 @@ const processImport = (path: NodePath<t.ImportDeclaration>) => {
               t.memberExpression(
                 t.identifier('__injections'),
                 t.identifier('hasOwnProperty'),
-                false,
+                false
               ),
-              [t.stringLiteral(dependencyString)],
+              [t.stringLiteral(dependencyString)]
             ),
             injectionExpression,
-            aliasIdentifier,
-          ),
+            aliasIdentifier
+          )
         ),
-      ]),
+      ])
     );
 
-    // eslint-disable-next-line no-param-reassign
     specifier.local = aliasIdentifier;
     return specifier;
   });
@@ -89,7 +87,7 @@ const processDynamicImport = (path: NodePath<t.CallExpression>) => {
       t.conditionalExpression(
         t.callExpression(
           t.memberExpression(t.identifier('__injections'), t.identifier('hasOwnProperty'), false),
-          [t.stringLiteral(dependencyString)],
+          [t.stringLiteral(dependencyString)]
         ),
         t.callExpression(
           t.memberExpression(t.identifier('Promise'), t.identifier('resolve'), false),
@@ -97,13 +95,13 @@ const processDynamicImport = (path: NodePath<t.CallExpression>) => {
             t.memberExpression(
               t.identifier('__injections'),
               t.stringLiteral(dependencyString),
-              true,
+              true
             ),
-          ],
+          ]
         ),
-        path.node,
-      ),
-    ),
+        path.node
+      )
+    )
   );
 
   return dependencyString;
@@ -112,7 +110,7 @@ const processDynamicImport = (path: NodePath<t.CallExpression>) => {
 // module.exports[exportIdentifier] = localIdentifier
 const createExportAssignment = (
   exportIdentifier: t.PrivateName | t.Expression,
-  localIdentifier: t.Expression,
+  localIdentifier: t.Expression
 ) =>
   t.expressionStatement(
     t.assignmentExpression(
@@ -120,10 +118,10 @@ const createExportAssignment = (
       t.memberExpression(
         t.memberExpression(t.identifier('module'), t.identifier('exports'), false),
         exportIdentifier,
-        false,
+        false
       ),
-      localIdentifier,
-    ),
+      localIdentifier
+    )
   );
 
 const processDefaultExport = (path: NodePath<t.ExportDefaultDeclaration>) => {
@@ -138,8 +136,8 @@ const processDefaultExport = (path: NodePath<t.ExportDefaultDeclaration>) => {
         declaration.params,
         declaration.body,
         declaration.generator,
-        declaration.async,
-      ),
+        declaration.async
+      )
     );
   } else if (t.isExpression(path.node.declaration)) {
     exportAssignment = createExportAssignment(t.identifier('default'), path.node.declaration);
@@ -160,7 +158,7 @@ const processNamedExport = (path: NodePath<t.ExportNamedDeclaration>) => {
       declaration.declarations.forEach((d) => {
         t.assertExpression(d.id);
         statements.push(
-          createExportAssignment(d.id, d.init && t.isLiteral(d.init) ? d.init : d.id),
+          createExportAssignment(d.id, d.init && t.isLiteral(d.init) ? d.init : d.id)
         );
       });
     } else if (
@@ -181,7 +179,7 @@ const processNamedExport = (path: NodePath<t.ExportNamedDeclaration>) => {
 const injectify = (
   context: LoaderContext<object>,
   source: string,
-  inputSourceMap?: InputSourceMap,
+  inputSourceMap?: InputSourceMap
 ) => {
   const { ast } = transformSync(source, {
     ast: true,
@@ -230,8 +228,8 @@ const injectify = (
     context.emitWarning(
       new Error(
         "The module you are trying to inject into doesn't have any dependencies. " +
-          'Are you sure you want to do this?',
-      ),
+          'Are you sure you want to do this?'
+      )
     );
   }
   const template = usesESModules ? wrapperTemplateESM : wrapperTemplate;
@@ -244,7 +242,7 @@ const injectify = (
         SOURCE_PATH: t.stringLiteral(context.resourcePath),
         DEPENDENCIES: t.arrayExpression(dependencies.map((d) => t.stringLiteral(d))),
       }) as t.Statement,
-    ]),
+    ])
   );
 
   return transformFromAstSync(wrapperModuleAst, source, {

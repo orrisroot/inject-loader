@@ -1,5 +1,4 @@
-/* eslint-disable global-require */
-
+/* eslint-disable node/no-missing-require */
 const assert = require('assert');
 
 const MODULE_A_STUB = {
@@ -12,12 +11,12 @@ const MODULE_B_STUB = () => 'b - stubbed';
 
 describe('inject-loader', () => {
   const injectors = [
-    {moduleType: 'commonjs', moduleInjector: require('self!./modules/commonjs.js')},
-    {moduleType: 'amd', moduleInjector: require('self!./modules/amd.js')},
-    {moduleType: 'es6', moduleInjector: require('self!./modules/es6.js')},
+    { moduleType: 'commonjs', moduleInjector: require('inject-loader!./modules/commonjs.js') },
+    { moduleType: 'amd', moduleInjector: require('inject-loader!./modules/amd.js') },
+    { moduleType: 'es6', moduleInjector: require('inject-loader!./modules/es6.js') },
   ];
 
-  injectors.forEach(injector => {
+  injectors.forEach((injector) => {
     describe(`${injector.moduleType} modules`, () => {
       it('works when no injections were provided', () => {
         const module = injector.moduleInjector();
@@ -37,7 +36,7 @@ describe('inject-loader', () => {
         assert.equal(module.getC(), 'c - original');
       });
 
-      it('works when a falsey injection was provided', () => {
+      it('works when a falsy injection was provided', () => {
         const module = injector.moduleInjector({
           './c.js': undefined,
         });

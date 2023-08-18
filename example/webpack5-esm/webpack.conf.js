@@ -1,4 +1,6 @@
 const path = require('path');
+
+// eslint-disable-next-line node/no-unpublished-require
 const webpack = require('webpack');
 
 module.exports = {
@@ -10,7 +12,7 @@ module.exports = {
 
   plugins: [
     new webpack.DefinePlugin({
-      __VALUEA__: 10,
+      __VALUE_A__: 10,
     }),
   ],
 
