@@ -2,14 +2,17 @@ const path = require('path');
 const constants = require('./shared');
 
 module.exports = {
-  entry: path.resolve(constants.SOURCE_PATH, 'index.js'),
+  entry: path.resolve(constants.SOURCE_PATH, 'index.ts'),
   target: 'node',
   mode: 'production',
   devtool: 'source-map',
   output: {
-    path: constants.TEMP_PATH,
+    path: constants.DIST_PATH,
     filename: 'index.js',
     libraryTarget: 'commonjs',
+  },
+  resolve: {
+    extensions: ['.ts', '.js'],
   },
   externals: constants.NODE_EXTERNAL_DEPS.map((dep) => ({
     [dep]: `commonjs ${dep}`,
@@ -17,23 +20,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        include: [constants.SOURCE_PATH, constants.TESTS_PATH],
-        options: {
-          cacheDirectory: true,
-          presets: [
-            [
-              '@babel/preset-env',
-              {
-                targets: {
-                  node: '6',
-                },
-              },
-            ],
-          ],
-          plugins: ['@babel/plugin-transform-flow-strip-types'],
-        },
+        test: /\.ts$/,
+        use: [{ loader: 'ts-loader' }],
       },
     ],
   },

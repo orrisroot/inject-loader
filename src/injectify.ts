@@ -1,35 +1,37 @@
-// @flow
+import type { NodePath } from '@babel/core';
+import { types as t, transformFromAstSync, transformSync, traverse } from '@babel/core';
+import type { LoaderContext } from 'webpack';
 
-import {transformSync, traverse, types as t, transformFromAstSync} from '@babel/core';
-import wrapperTemplate from './wrapper_template.js';
-import wrapperTemplateESM from './wrapper_template_esm.js';
+import type { InputSourceMap } from './types';
+import wrapperTemplate from './wrapper_template';
+import wrapperTemplateESM from './wrapper_template_esm';
 
-function processRequireCall(path) {
+const processRequireCall = (path: NodePath<t.CallExpression>) => {
+  t.assertStringLiteral(path.node.arguments[0]);
   const dependencyString = path.node.arguments[0].value;
   path.replaceWith(
     t.expressionStatement(
       t.conditionalExpression(
         t.callExpression(
           t.memberExpression(t.identifier('__injections'), t.identifier('hasOwnProperty'), false),
-          [t.stringLiteral(dependencyString)]
+          [t.stringLiteral(dependencyString)],
         ),
         t.memberExpression(t.identifier('__injections'), t.stringLiteral(dependencyString), true),
-        path.node
-      )
-    )
+        path.node,
+      ),
+    ),
   );
 
   return dependencyString;
-}
+};
 
-function processImport(path) {
-  const node = path.node;
+const processImport = (path: NodePath<t.ImportDeclaration>) => {
+  const { node } = path;
   const dependencyString = node.source.value;
 
-  const injectionStatements = [];
-  const aliasedSpecifiers = node.specifiers.map(specifier => {
+  const injectionStatements: t.VariableDeclaration[] = [];
+  const aliasedSpecifiers = node.specifiers.map((specifier) => {
     const localIdentifier = specifier.local;
-    const importedIdentifier = specifier.imported;
     // ex: __React
     const aliasIdentifier = t.identifier(`__${localIdentifier.name}`);
 
@@ -37,11 +39,11 @@ function processImport(path) {
     let injectionExpression = t.memberExpression(
       t.identifier('__injections'),
       t.stringLiteral(dependencyString),
-      true
+      true,
     );
-    if (specifier.type === 'ImportSpecifier') {
+    if (t.isImportSpecifier(specifier)) {
       // __injections['react'].Component
-      injectionExpression = t.memberExpression(injectionExpression, importedIdentifier);
+      injectionExpression = t.memberExpression(injectionExpression, specifier.imported);
     }
 
     injectionStatements.push(
@@ -53,17 +55,18 @@ function processImport(path) {
               t.memberExpression(
                 t.identifier('__injections'),
                 t.identifier('hasOwnProperty'),
-                false
+                false,
               ),
-              [t.stringLiteral(dependencyString)]
+              [t.stringLiteral(dependencyString)],
             ),
             injectionExpression,
-            aliasIdentifier
-          )
+            aliasIdentifier,
+          ),
         ),
-      ])
+      ]),
     );
 
+    // eslint-disable-next-line no-param-reassign
     specifier.local = aliasIdentifier;
     return specifier;
   });
@@ -76,17 +79,17 @@ function processImport(path) {
     node: aliasedImport,
     dependencyString,
   };
-}
+};
 
-function processDynamicImport(path) {
+const processDynamicImport = (path: NodePath<t.CallExpression>) => {
+  t.assertStringLiteral(path.node.arguments[0]);
   const dependencyString = path.node.arguments[0].value;
-
   path.replaceWith(
     t.expressionStatement(
       t.conditionalExpression(
         t.callExpression(
           t.memberExpression(t.identifier('__injections'), t.identifier('hasOwnProperty'), false),
-          [t.stringLiteral(dependencyString)]
+          [t.stringLiteral(dependencyString)],
         ),
         t.callExpression(
           t.memberExpression(t.identifier('Promise'), t.identifier('resolve'), false),
@@ -94,38 +97,40 @@ function processDynamicImport(path) {
             t.memberExpression(
               t.identifier('__injections'),
               t.stringLiteral(dependencyString),
-              true
+              true,
             ),
-          ]
+          ],
         ),
-        path.node
-      )
-    )
+        path.node,
+      ),
+    ),
   );
 
   return dependencyString;
-}
+};
 
 // module.exports[exportIdentifier] = localIdentifier
-function createExportAssignment(exportIdentifier, localIdentifier) {
-  return t.expressionStatement(
+const createExportAssignment = (
+  exportIdentifier: t.PrivateName | t.Expression,
+  localIdentifier: t.Expression,
+) =>
+  t.expressionStatement(
     t.assignmentExpression(
       '=',
       t.memberExpression(
         t.memberExpression(t.identifier('module'), t.identifier('exports'), false),
         exportIdentifier,
-        false
+        false,
       ),
-      localIdentifier
-    )
+      localIdentifier,
+    ),
   );
-}
 
-function processDefaultExport(path) {
-  let exportAssignment;
-  const declaration = path.node.declaration;
+const processDefaultExport = (path: NodePath<t.ExportDefaultDeclaration>) => {
+  let exportAssignment: t.ExpressionStatement | null = null;
+  const { declaration } = path.node;
 
-  if (declaration.type === 'FunctionDeclaration') {
+  if (t.isFunctionDeclaration(declaration)) {
     exportAssignment = createExportAssignment(
       t.identifier('default'),
       t.functionExpression(
@@ -133,62 +138,68 @@ function processDefaultExport(path) {
         declaration.params,
         declaration.body,
         declaration.generator,
-        declaration.async
-      )
+        declaration.async,
+      ),
     );
-  } else {
+  } else if (t.isExpression(path.node.declaration)) {
     exportAssignment = createExportAssignment(t.identifier('default'), path.node.declaration);
   }
 
-  path.replaceWith(exportAssignment);
-}
+  if (exportAssignment != null) {
+    path.replaceWith(exportAssignment);
+  }
+};
 
-function processExport(path) {
-  let statements = [];
+const processNamedExport = (path: NodePath<t.ExportNamedDeclaration>) => {
+  let statements: t.Statement[] = [];
 
-  const declaration = path.node.declaration;
+  const { declaration } = path.node;
   if (declaration) {
     statements.push(declaration);
-
-    if (Array.isArray(declaration.declarations)) {
-      declaration.declarations.forEach(d => {
-        let isLiteral = false;
-        if (d.init && d.init.type.endsWith('Literal')) {
-          isLiteral = true;
-        }
-        statements.push(createExportAssignment(d.id, isLiteral ? d.init : d.id));
+    if (t.isVariableDeclaration(declaration)) {
+      declaration.declarations.forEach((d) => {
+        t.assertExpression(d.id);
+        statements.push(
+          createExportAssignment(d.id, d.init && t.isLiteral(d.init) ? d.init : d.id),
+        );
       });
-    } else {
+    } else if (
+      (t.isClassDeclaration(declaration) || t.isFunctionDeclaration(declaration)) &&
+      declaration.id != null
+    ) {
       statements.push(createExportAssignment(declaration.id, declaration.id));
     }
   } else {
-    statements = path.node.specifiers.map(specifier =>
-      createExportAssignment(specifier.exported, specifier.local)
-    );
+    statements = path.node.specifiers
+      .filter((specifier): specifier is t.ExportSpecifier => t.isExportSpecifier(specifier))
+      .map((specifier) => createExportAssignment(specifier.exported, specifier.local));
   }
 
   path.replaceWithMultiple(statements);
-}
+};
 
-export default function injectify(context: Object, source: string, inputSourceMap: string) {
-  const {ast} = transformSync(source, {
+const injectify = (
+  context: LoaderContext<object>,
+  source: string,
+  inputSourceMap?: InputSourceMap,
+) => {
+  const { ast } = transformSync(source, {
     ast: true,
     code: false,
+    babelrc: false,
     compact: false,
+    configFile: false,
     filename: context.resourcePath,
-  });
+  })!;
+  t.assertFile(ast);
 
-  const dependencies = [];
-  const imports = [];
+  const dependencies: string[] = [];
+  const imports: t.Statement[] = [];
   let usesESModules = false;
 
   traverse(ast, {
     CallExpression(path) {
-      if (
-        t.isIdentifier(path.node.callee, {
-          name: 'require',
-        })
-      ) {
+      if (t.isIdentifier(path.node.callee, { name: 'require' })) {
         dependencies.push(processRequireCall(path));
         path.skip();
       } else if (t.isImport(path.node.callee)) {
@@ -198,7 +209,7 @@ export default function injectify(context: Object, source: string, inputSourceMa
     },
     ImportDeclaration(path) {
       usesESModules = true;
-      const {node, dependencyString} = processImport(path);
+      const { node, dependencyString } = processImport(path);
       imports.push(node);
       dependencies.push(dependencyString);
       path.skip();
@@ -210,18 +221,19 @@ export default function injectify(context: Object, source: string, inputSourceMa
     },
     ExportNamedDeclaration(path) {
       usesESModules = true;
-      processExport(path);
+      processNamedExport(path);
       path.skip();
     },
   });
 
   if (dependencies.length === 0) {
     context.emitWarning(
-      "The module you are trying to inject into doesn't have any dependencies. " +
-        'Are you sure you want to do this?'
+      new Error(
+        "The module you are trying to inject into doesn't have any dependencies. " +
+          'Are you sure you want to do this?',
+      ),
     );
   }
-
   const template = usesESModules ? wrapperTemplateESM : wrapperTemplate;
 
   const wrapperModuleAst = t.file(
@@ -230,10 +242,9 @@ export default function injectify(context: Object, source: string, inputSourceMa
       template({
         SOURCE: ast.program.body,
         SOURCE_PATH: t.stringLiteral(context.resourcePath),
-        DEPENDENCIES: t.arrayExpression(dependencies.map(d => t.stringLiteral(d))),
-      }),
+        DEPENDENCIES: t.arrayExpression(dependencies.map((d) => t.stringLiteral(d))),
+      }) as t.Statement,
     ]),
-    []
   );
 
   return transformFromAstSync(wrapperModuleAst, source, {
@@ -245,4 +256,6 @@ export default function injectify(context: Object, source: string, inputSourceMa
     configFile: false,
     filename: context.resourcePath,
   });
-}
+};
+
+export default injectify;

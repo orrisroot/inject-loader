@@ -10,6 +10,9 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         exclude: /(\/node_modules$)/,
+        options: {
+          presets: [['@babel/preset-env', { modules: 'cjs' }]],
+        },
       },
     ],
   },
@@ -40,7 +43,7 @@ module.exports = {
 
   resolveLoader: {
     alias: {
-      'inject-loader': path.resolve(__dirname, '../../tmp'),
+      'inject-loader': path.resolve(__dirname, '../../lib'),
     },
   },
 };

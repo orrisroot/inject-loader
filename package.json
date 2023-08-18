@@ -1,14 +1,16 @@
 {
   "name": "inject-loader",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "A Webpack loader for injecting code into modules via their dependencies",
   "main": "dist/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
+    "clean": "del-cli lib types tmp",
     "build": "webpack --config config/webpack.config.js",
     "build:test": "webpack --config config/webpack.test.config.js",
     "build:test:esm": "webpack --config config/webpack.test.esm.config.js",
-    "build:release": "yarn run build && mkdir -p ./dist && cp -f ./tmp/index.js ./dist/index.js && cp -f ./tmp/index.js.map ./dist/index.js.map",
-    "pretest:unit": "yarn build && yarn build:test && yarn build:test:esm",
+    "build:release": "yarn clean && yarn build",
+    "pretest:unit": "yarn clean && yarn build && yarn build:test && yarn build:test:esm",
     "test:unit": "mocha tmp/testBundle.js tmp/testBundleESM.js --require source-map-support/register",
     "test:integration": "./script/integration_test",
     "test": "flow && yarn test:unit && yarn test:integration",
@@ -19,24 +21,32 @@
     "dist"
   ],
   "author": "Justin Morris <desk@pixelbloom.com> (http://pixelbloom.com)",
+  "contributors": [
+    "Yoshihiro Okumura"
+  ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:plasticine/inject-loader.git"
+    "url": "git@github.com:orrisroot/inject-loader.git"
   },
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7"
   },
   "devDependencies": {
-    "@babel/plugin-transform-flow-strip-types": "^7.22.5",
     "@babel/preset-env": "^7.22.10",
+    "@babel/types": "^7.22.10",
+    "@types/babel__core": "^7.20.1",
+    "@types/node": "^18",
     "babel-loader": "^9.1.3",
+    "del": "^7.0.0",
+    "del-cli": "^5.0.0",
     "flow-bin": "^0.214.0",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
     "prettier": "^2.8.8",
     "pretty-quick": "^3.1.3",
-    "source-map-support": "^0.5.21",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   },

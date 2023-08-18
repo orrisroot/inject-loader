@@ -30,7 +30,7 @@ module.exports = {
 
   resolveLoader: {
     alias: {
-      'inject-loader': path.resolve(__dirname, '../../tmp'),
+      'inject-loader': path.resolve(__dirname, '../../lib'),
     },
   },
 };

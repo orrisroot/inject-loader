@@ -11,7 +11,7 @@ module.exports = {
   },
   resolveLoader: {
     alias: {
-      self: constants.TEMP_PATH,
+      self: constants.DIST_PATH,
     },
   },
   module: {
@@ -19,18 +19,10 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [constants.SOURCE_PATH, constants.TESTS_PATH],
+        include: [constants.TESTS_PATH],
         options: {
           cacheDirectory: true,
-          presets: [
-            [
-              '@babel/preset-env',
-              {
-                modules: 'cjs',
-              },
-            ],
-          ],
-          plugins: ['@babel/plugin-transform-flow-strip-types'],
+          presets: [['@babel/preset-env', { modules: 'cjs' }]],
         },
       },
     ],
