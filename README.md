@@ -13,7 +13,7 @@ This is particularly useful for writing tests where mocking things inside your m
 
 `inject-loader` was inspired by, and builds upon ideas introduced in [jauco/webpack-injectable](https://github.com/jauco/webpack-injectable).
 
-This library has been forked from [inject-loader](https://github.com/plasticine/inject-loader) and renamed to [@orrisroot/inject-loader](https://github.com/orrisroot/react-html-parser) for continued maintenance.
+This library has been forked from [inject-loader](https://github.com/plasticine/inject-loader) and renamed to [@orrisroot/inject-loader](https://github.com/orrisroot/inject-loader) for continued maintenance.
 
 ## Usage
 
