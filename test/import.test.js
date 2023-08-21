@@ -1,7 +1,7 @@
 /* eslint-disable node/no-missing-import, import/no-unresolved */
 import assert from 'assert';
 
-import moduleInjector from 'inject-loader!./modules/es6.js';
+import moduleInjector from 'self!./fixtures/es6.js';
 
 const MODULE_A_STUB = {
   a() {
@@ -11,8 +11,8 @@ const MODULE_A_STUB = {
 
 const MODULE_B_STUB = () => 'b - stubbed';
 
-describe('inject-loader (ESM)', () => {
-  it('works when no injections were provided', () => {
+describe('inject-loader (ESM)', function () {
+  it('works when no injections were provided', function () {
     const module = moduleInjector();
 
     assert.equal(module.getA(), 'a - original');
@@ -20,7 +20,7 @@ describe('inject-loader (ESM)', () => {
     assert.equal(module.getC(), 'c - original');
   });
 
-  it('works when one injection was provided', () => {
+  it('works when one injection was provided', function () {
     const module = moduleInjector({
       './a.js': MODULE_A_STUB,
     });
@@ -30,7 +30,7 @@ describe('inject-loader (ESM)', () => {
     assert.equal(module.getC(), 'c - original');
   });
 
-  it('works when a falsey injection was provided', () => {
+  it('works when a falsy injection was provided', function () {
     const module = moduleInjector({
       './c.js': undefined,
     });
@@ -40,7 +40,7 @@ describe('inject-loader (ESM)', () => {
     assert.equal(module.getC(), undefined);
   });
 
-  it('works when multiple injections were provided', () => {
+  it('works when multiple injections were provided', function () {
     const module = moduleInjector({
       './a.js': MODULE_A_STUB,
       './b.js': MODULE_B_STUB,
@@ -51,7 +51,7 @@ describe('inject-loader (ESM)', () => {
     assert.equal(module.getC(), 'c - original');
   });
 
-  it('throws an error when invalid dependencies are provided', () => {
+  it('throws an error when invalid dependencies are provided', function () {
     const injectInvalidDependencies = () => {
       moduleInjector({
         './b.js': null,
@@ -74,7 +74,7 @@ describe('inject-loader (ESM)', () => {
     );
   });
 
-  it('does not break someObject.require calls', () => {
+  it('does not break someObject.require calls', function () {
     const module = moduleInjector();
 
     assert.equal(module.callRequireMethod(), 'require method in a.js');

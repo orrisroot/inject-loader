@@ -11,8 +11,8 @@
     /* Emit */
     "declaration": true,
     "declarationMap": true,
-    //"sourceMap": true,
-    "outDir": "./dist",
+    "sourceMap": true,
+    "outDir": "./lib",
     "declarationDir": "./types",
     /* Interop Constraints */
     "esModuleInterop": true,

@@ -1,5 +1,5 @@
 /* eslint-disable node/no-missing-import, import/no-unresolved */
-import mainModuleInjector from 'inject-loader!main';
+import mainModuleInjector from '@orrisroot/inject-loader!main';
 import { getValue as mainGetValue } from 'main';
 
 describe('Main', () => {

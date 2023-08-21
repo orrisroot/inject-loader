@@ -1,0 +1,14 @@
+{
+  "version": "0.2",
+  "language": "en,en-gb",
+  "words": ["injectify", "jauco", "popd", "pushd", "tikhonov"],
+  "ignorePaths": [
+    "package.json",
+    "lib",
+    "types",
+    "yarn.lock",
+    "tmp",
+    "example/**/dest",
+    "node_modules"
+  ]
+}

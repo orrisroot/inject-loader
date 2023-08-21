@@ -12,7 +12,7 @@ describe('Main', () => {
     let mainModuleInjector;
 
     beforeEach(() => {
-      mainModuleInjector = require('inject-loader!main');
+      mainModuleInjector = require('@orrisroot/inject-loader!main');
     });
 
     it('allows for injecting code into a subset of dependencies', () => {
@@ -29,7 +29,7 @@ describe('Main', () => {
       expect(mainModule.getValue()).toEqual(20);
     });
 
-    it('allows for injecting code mulitple dependencies', () => {
+    it('allows for injecting code multiple dependencies', () => {
       mainModule = mainModuleInjector({
         './getFoo': () => 5,
         './bar': { BAR: 5 },

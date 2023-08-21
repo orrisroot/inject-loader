@@ -5,47 +5,34 @@ const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
-
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /(\/node_modules$)/,
-        options: {
-          presets: [['@babel/preset-env', { modules: 'cjs' }]],
-        },
-      },
-    ],
-  },
-
   entry: {
-    main: './test/main_test',
+    main: './test/main.test.js',
   },
-
+  output: {
+    path: path.resolve(__dirname, 'dest'),
+  },
+  resolve: {
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
+  },
   plugins: [
     new webpack.DefinePlugin({
       __VALUE_A__: 10,
     }),
   ],
-
-  output: {
-    path: path.resolve(__dirname, './dest'),
-  },
-
-  resolve: {
-    extensions: ['.js'],
-    modules: [
-      __dirname,
-      path.resolve(__dirname, './node_modules'),
-      path.resolve(__dirname, './src'),
-      path.resolve(__dirname, './test'),
-    ],
-  },
-
   resolveLoader: {
     alias: {
-      'inject-loader': path.resolve(__dirname, '../../lib'),
+      '@orrisroot/inject-loader': path.resolve(__dirname, '../../lib'),
     },
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        options: {
+          presets: [['@babel/preset-env', { modules: 'cjs' }]],
+        },
+      },
+    ],
   },
 };

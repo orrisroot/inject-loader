@@ -51,7 +51,12 @@ module.exports = {
       },
     },
     {
-      files: ['__tests__/*.js', 'example/*/test/*.js'],
+      files: ['test/*.js'],
+      plugins: ['mocha'],
+      extends: ['plugin:mocha/recommended'],
+    },
+    {
+      files: ['example/*/test/*.js'],
       env: {
         jasmine: true,
       },

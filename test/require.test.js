@@ -1,4 +1,4 @@
-/* eslint-disable node/no-missing-require */
+/* eslint-disable node/no-missing-require, mocha/no-setup-in-describe */
 const assert = require('assert');
 
 const MODULE_A_STUB = {
@@ -9,16 +9,16 @@ const MODULE_A_STUB = {
 
 const MODULE_B_STUB = () => 'b - stubbed';
 
-describe('inject-loader', () => {
+describe('inject-loader', function () {
   const injectors = [
-    { moduleType: 'commonjs', moduleInjector: require('inject-loader!./modules/commonjs.js') },
-    { moduleType: 'amd', moduleInjector: require('inject-loader!./modules/amd.js') },
-    { moduleType: 'es6', moduleInjector: require('inject-loader!./modules/es6.js') },
+    { moduleType: 'commonjs', moduleInjector: require('self!./fixtures/commonjs.js') },
+    { moduleType: 'amd', moduleInjector: require('self!./fixtures/amd.js') },
+    { moduleType: 'es6', moduleInjector: require('self!./fixtures/es6.js').default },
   ];
 
   injectors.forEach((injector) => {
-    describe(`${injector.moduleType} modules`, () => {
-      it('works when no injections were provided', () => {
+    describe(`${injector.moduleType} modules`, function () {
+      it('works when no injections were provided', function () {
         const module = injector.moduleInjector();
 
         assert.equal(module.getA(), 'a - original');
@@ -26,7 +26,7 @@ describe('inject-loader', () => {
         assert.equal(module.getC(), 'c - original');
       });
 
-      it('works when one injection was provided', () => {
+      it('works when one injection was provided', function () {
         const module = injector.moduleInjector({
           './a.js': MODULE_A_STUB,
         });
@@ -36,7 +36,7 @@ describe('inject-loader', () => {
         assert.equal(module.getC(), 'c - original');
       });
 
-      it('works when a falsy injection was provided', () => {
+      it('works when a falsy injection was provided', function () {
         const module = injector.moduleInjector({
           './c.js': undefined,
         });
@@ -46,7 +46,7 @@ describe('inject-loader', () => {
         assert.equal(module.getC(), undefined);
       });
 
-      it('works when multiple injections were provided', () => {
+      it('works when multiple injections were provided', function () {
         const module = injector.moduleInjector({
           './a.js': MODULE_A_STUB,
           './b.js': MODULE_B_STUB,
@@ -57,7 +57,7 @@ describe('inject-loader', () => {
         assert.equal(module.getC(), 'c - original');
       });
 
-      it('throws an error when invalid dependencies are provided', () => {
+      it('throws an error when invalid dependencies are provided', function () {
         const injectInvalidDependencies = () => {
           injector.moduleInjector({
             './b.js': null,
@@ -80,7 +80,7 @@ describe('inject-loader', () => {
         );
       });
 
-      it('does not break someObject.require calls', () => {
+      it('does not break someObject.require calls', function () {
         const module = injector.moduleInjector();
 
         assert.equal(module.callRequireMethod(), 'require method in a.js');

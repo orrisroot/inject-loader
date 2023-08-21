@@ -1,23 +1,21 @@
 const path = require('path');
 
-const constants = require('./shared');
-
 module.exports = {
-  entry: path.resolve(constants.SOURCE_PATH, 'index.ts'),
-  target: 'node',
   mode: 'production',
+  target: 'node',
+  entry: './src/index.ts',
   devtool: 'source-map',
   output: {
-    path: constants.DIST_PATH,
+    path: path.resolve(__dirname, 'lib'),
     filename: 'index.js',
     libraryTarget: 'commonjs',
   },
   resolve: {
     extensions: ['.ts', '.js'],
   },
-  externals: constants.NODE_EXTERNAL_DEPS.map((dep) => ({
-    [dep]: `commonjs ${dep}`,
-  })),
+  externals: {
+    '@babel/core': 'commonjs @babel/core',
+  },
   module: {
     rules: [
       {

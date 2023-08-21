@@ -1,26 +1,29 @@
-<div align="center">
-  <h3>💉📦<br><br><code>inject-loader</code></h3>
-  <h4>A Webpack loader for injecting code into modules via their dependencies</h4>
-  <a href="https://travis-ci.org/plasticine/inject-loader"><img src="https://img.shields.io/travis/plasticine/inject-loader/master.svg?style=flat-square" alt="build status" /></a> <a href="https://www.npmjs.com/package/inject-loader"><img src="https://img.shields.io/npm/v/inject-loader.svg?style=flat-square" alt="npm version" /></a> <a href="https://www.npmjs.com/package/inject-loader"><img src="https://img.shields.io/npm/dm/inject-loader.svg?style=flat-square" alt="npm downloads" /></a>
-</div>
+# 💉📦 inject-loader
+
+A Webpack loader for injecting code into modules via their dependencies
+
+[![npm](https://img.shields.io/npm/v/@orrisroot/inject-loader.svg)](https://www.npmjs.com/package/@orrisroot/inject-loader)
+[![Downloads](https://img.shields.io/npm/dw/@orrisroot/inject-loader.svg)](https://www.npmjs.com/package/@orrisroot/inject-loader)
 
 ***
 
-### Why
+## Why
 
 This is particularly useful for writing tests where mocking things inside your module-under-test is sometimes necessary before execution.
 
 `inject-loader` was inspired by, and builds upon ideas introduced in [jauco/webpack-injectable](https://github.com/jauco/webpack-injectable).
 
-### Usage
+This library has been forked from [inject-loader](https://github.com/plasticine/inject-loader) and renamed to [@orrisroot/inject-loader](https://github.com/orrisroot/react-html-parser) for continued maintenance.
+
+## Usage
 
 [Documentation: Using loaders](http://webpack.github.io/docs/using-loaders.html)
 
-Use the inject loader by adding the `inject-loader!` [inline loader](https://webpack.js.org/concepts/loaders/#inline) when you use `require`, this will return a function that can used in test code to modify the injected module.
+Use the inject loader by adding the `@orrisroot/inject-loader!` [inline loader](https://webpack.js.org/concepts/loaders/#inline) when you use `require`, this will return a function that can used in test code to modify the injected module.
 
 By default all `require` statements in an injected module will be altered to be replaced with an injector, though if a replacement it not specified the default values will be used.
 
-### Examples
+## Examples
 
 Given some code in a module like this:
 
@@ -39,7 +42,7 @@ You can manipulate it’s dependencies when you come to write tests as follows:
 ```javascript
 // If no flags are provided when using the loader then
 // all require statements will be wrapped in an injector
-MyModuleInjector = require('inject-loader!MyStore')
+MyModuleInjector = require('@orrisroot/inject-loader!MyStore')
 MyModule = MyModuleInjector({
   'lib/dispatcher': DispatcherMock,
   'events': EventsMock,
@@ -51,4 +54,4 @@ There are a few examples of complete test setups for Webpack 5 in the [`example`
 
 ## License
 
-MIT (http://www.opensource.org/licenses/mit-license.php)
+The source code is licensed MIT. see [`LICENSE`](./LICENSE).
