@@ -25,7 +25,8 @@
   },
   "files": [
     "lib",
-    "types"
+    "types",
+    "CHANGELOG.md"
   ],
   "author": "Justin Morris <desk@pixelbloom.com> (http://pixelbloom.com)",
   "contributors": [
