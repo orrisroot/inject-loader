@@ -12,6 +12,7 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
+lib/
+types/
 tmp/
-
 .eslintcache
